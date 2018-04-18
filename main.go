@@ -6,6 +6,9 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudwatch"
 )
 
 var (
@@ -23,6 +26,8 @@ var (
 // It uses Amazon API Gateway request/responses provided by the aws-lambda-go/events package,
 // However you could use other event sources (S3, Kinesis etc), or JSON-decoded primitive types such as 'string'.
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	// Create CloudWatch client
+	cw := cloudwatch.New()
 
 	// Define map of statuses
 	StatusMap := make(map[string]string)
@@ -47,6 +52,18 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	if len(request.Body) < 1 {
 		return events.APIGatewayProxyResponse{}, ErrNameNotProvided
 	}
+
+	// Push metric to cloudwatch
+	result, err := cw.PutMetricData(&cloudwatch.PutMetricDataInput{
+		MetricData: []*cloudwatch.MetricDatum{
+			&cloudwatch.MetricDatum{
+				MetricName: aws.String("ButtonPush"),
+				Unit:       aws.String(cloudwatch.StandardUnitCount),
+				Value:      aws.String(StatusMap[request.Body]),
+			},
+		},
+		Namespace: aws.String("HappyButton"),
+	})
 
 	return events.APIGatewayProxyResponse{
 		Body:       StatusMap[request.Body],

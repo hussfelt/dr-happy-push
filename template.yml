@@ -5,6 +5,7 @@ Resources:
   HelloFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Policies: CloudWatchAgentServerPolicy
       Handler: main
       Runtime: go1.x
       Events:
