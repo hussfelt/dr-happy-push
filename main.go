@@ -87,7 +87,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
         return events.APIGatewayProxyResponse{}, ErrCWNoSuccess
     }
 
-    log.Printf("Success", result)
+    log.Printf("Success: %s\n", result)
 
 	return events.APIGatewayProxyResponse{
 		Body:       StatusMap[request.Body],
