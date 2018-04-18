@@ -11,6 +11,9 @@ import (
 var (
 	// ErrNameNotProvided is thrown when a name is not provided
 	ErrNameNotProvided = errors.New("no name was provided in the HTTP body")
+
+	// ErrAuthenticationFailed is thrown when a name is not provided
+	ErrAuthenticationFailed = errors.New("recieved an invalid authentication token")
 )
 
 // Handler is your Lambda function handler
@@ -20,6 +23,10 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	// stdout and stderr are sent to AWS CloudWatch Logs
 	log.Printf("Processing Lambda request %s\n", request.RequestContext.RequestID)
+
+	if len(request.Headers.Auth) < 1 || request.Headers.Auth != "banankontakt" {
+		return events.APIGatewayProxyResponse{}, ErrAuthenticationFailed
+	}
 
 	// If no name is provided in the HTTP request body, throw an error
 	if len(request.Body) < 1 {
