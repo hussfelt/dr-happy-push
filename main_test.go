@@ -11,6 +11,9 @@ import (
 
 func TestHandler(t *testing.T) {
 
+	Headers := make(map[string]string)
+	Headers["Auth"] = "banankontakt"
+
 	tests := []struct {
 		request events.APIGatewayProxyRequest
 		expect  string
@@ -19,14 +22,14 @@ func TestHandler(t *testing.T) {
 		{
 			// Test that the handler responds with the correct response
 			// when a valid name is provided in the HTTP body
-			request: events.APIGatewayProxyRequest{Body: "Paul", Headers: { Auth: "banankontakt" }},
+			request: events.APIGatewayProxyRequest{Body: "Paul", Headers: Headers},
 			expect:  "Hello Paul",
 			err:     nil,
 		},
 		{
 			// Test that the handler responds ErrNameNotProvided
 			// when no name is provided in the HTTP body
-			request: events.APIGatewayProxyRequest{Body: "", Headers: { Auth: "banankontakt" }},
+			request: events.APIGatewayProxyRequest{Body: "", Headers: Headers},
 			expect:  "",
 			err:     main.ErrNameNotProvided,
 		},
