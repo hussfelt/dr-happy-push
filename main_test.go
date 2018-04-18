@@ -2,6 +2,7 @@ package main_test
 
 import (
 	"testing"
+	"log"
 
 	"github.com/hussfelt/dr-happy-push"
 
@@ -58,6 +59,13 @@ func TestHandler(t *testing.T) {
 
 	for _, test := range tests {
 		response, err := main.Handler(test.request)
+
+		// Log
+		log.Printf("Test: %s\n", test)
+		log.Printf("Error: %s\n", err)
+		log.Printf("Expect: %s\n", test.expect)
+		log.Printf("Response: %s\n", response.Body)
+
 		assert.IsType(t, test.err, err)
 		assert.Equal(t, test.expect, response.Body)
 	}
