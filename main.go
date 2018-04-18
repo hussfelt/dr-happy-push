@@ -21,6 +21,12 @@ var (
 // However you could use other event sources (S3, Kinesis etc), or JSON-decoded primitive types such as 'string'.
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
+	// Define map of statuses
+	StatusMap := make(map[string]int)
+	StatusMap["Green"] = 3;
+	StatusMap["Yellow"] = 2;
+	StatusMap["Red"] = 1;
+
 	// stdout and stderr are sent to AWS CloudWatch Logs
 	log.Printf("Processing Lambda request %s\n", request.RequestContext.RequestID)
 
@@ -36,7 +42,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       "Hello " + request.Body,
+		Body:       request.Headers[request.Body],
 		StatusCode: 200,
 	}, nil
 

@@ -22,8 +22,22 @@ func TestHandler(t *testing.T) {
 		{
 			// Test that the handler responds with the correct response
 			// when a valid name is provided in the HTTP body
-			request: events.APIGatewayProxyRequest{Body: "Paul", Headers: Headers},
-			expect:  "Hello Paul",
+			request: events.APIGatewayProxyRequest{Body: "Green", Headers: Headers},
+			expect:  "3",
+			err:     nil,
+		},
+		{
+			// Test that the handler responds with the correct response
+			// when a valid name is provided in the HTTP body
+			request: events.APIGatewayProxyRequest{Body: "Yellow", Headers: Headers},
+			expect:  "2",
+			err:     nil,
+		},
+		{
+			// Test that the handler responds with the correct response
+			// when a valid name is provided in the HTTP body
+			request: events.APIGatewayProxyRequest{Body: "Red", Headers: Headers},
+			expect:  "1",
 			err:     nil,
 		},
 		{
