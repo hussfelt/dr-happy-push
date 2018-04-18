@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "additional_buckets" {
     sid = "AllowCloudFormationDeploy"
     effect = "Allow"
     actions = [
-      "cloudformation:*"
+      "*"
     ]
     resources = [
       "*",
