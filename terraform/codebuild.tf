@@ -23,6 +23,19 @@ data "aws_iam_policy_document" "additional_buckets" {
       "${aws_s3_bucket.happy.arn}/*",
     ]
   }
+
+  statement {
+    sid = "AllowCloudFormationDeploy"
+    effect = "Allow"
+    actions = [
+      "cloudformation:Describe*",
+      "cloudformation:List*",
+      "cloudformation:Get*"
+    ]
+    resources = [
+      "*",
+    ]
+  }
 }
 
 # aws_iam_policy.codebuild 
