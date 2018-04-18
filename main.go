@@ -26,8 +26,12 @@ var (
 // It uses Amazon API Gateway request/responses provided by the aws-lambda-go/events package,
 // However you could use other event sources (S3, Kinesis etc), or JSON-decoded primitive types such as 'string'.
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+
+	// Setup new session
+	sess := session.Must(session.NewSession())
+
 	// Create CloudWatch client
-	cw := cloudwatch.New()
+	cw := cloudwatch.New(sess)
 
 	// Define map of statuses
 	StatusMap := make(map[string]string)
