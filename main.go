@@ -22,10 +22,10 @@ var (
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	// Define map of statuses
-	StatusMap := make(map[string]int)
-	StatusMap["Green"] = 3;
-	StatusMap["Yellow"] = 2;
-	StatusMap["Red"] = 1;
+	StatusMap := make(map[string]string)
+	StatusMap["Green"] = "3";
+	StatusMap["Yellow"] = "2";
+	StatusMap["Red"] = "1";
 
 	// stdout and stderr are sent to AWS CloudWatch Logs
 	log.Printf("Processing Lambda request %s\n", request.RequestContext.RequestID)
