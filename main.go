@@ -24,19 +24,8 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	// stdout and stderr are sent to AWS CloudWatch Logs
 	log.Printf("Processing Lambda request %s\n", request.RequestContext.RequestID)
 
-	var id string
-	var ok bool
-	if x, found := request.Headers["Auth"]; found {
-	     if id, ok = x.(string); !ok {
-	     	return events.APIGatewayProxyResponse{}, ErrAuthenticationFailed
-	     } else {
-	     	if (x.(string) != "banankontakt") {
-	     		return events.APIGatewayProxyResponse{}, ErrAuthenticationFailed
-	     	}
-	     }
-	} else {
+	if request.Headers.Get("Auth").(string) != "banankontakt" {
 		return events.APIGatewayProxyResponse{}, ErrAuthenticationFailed
-	}
 	}
 
 	// If no name is provided in the HTTP request body, throw an error
