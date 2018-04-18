@@ -55,7 +55,7 @@ phases:
     commands:
 
       # Deploy our stack
-      - aws cloudformation deploy --template-file packaged.yml --stack-name dr-happy-push
+      - aws cloudformation deploy --capabilities CAPABILITY_IAM --template-file packaged.yml --stack-name dr-happy-push
 artifacts:
   files:
     - packaged.yml
