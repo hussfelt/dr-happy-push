@@ -22,9 +22,6 @@ var (
 	// ErrBodyNotAccepted is thrown when a body is not provided
 	ErrBodyNotAccepted = errors.New("recieved an invalid authentication token")
 
-	// ErrCouldNotConvert is thrown when we could not convert body to float
-	ErrCouldNotConvert = errors.New("could not convert body to float")
-
 	// ErrCWNoSuccess is thrown when we could not send to CW
 	ErrCWNoSuccess = errors.New("could not pass data to CloudWatch")
 )
@@ -43,10 +40,10 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	cw := cloudwatch.New(sess)
 
 	// Define map of statuses
-	StatusMap := make(map[string]string)
-	StatusMap["Green"] = "3";
-	StatusMap["Yellow"] = "2";
-	StatusMap["Red"] = "1";
+	StatusMap := make(map[string]int)
+	StatusMap["Green"] = 3
+	StatusMap["Yellow"] = 2;
+	StatusMap["Red"] = 1;
 
 	// stdout and stderr are sent to AWS CloudWatch Logs
 	log.Printf("Processing Lambda request %s\n", request.RequestContext.RequestID)
@@ -66,14 +63,8 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, ErrNameNotProvided
 	}
 
-	// Convert value to float
-    floatBody, err := strconv.ParseFloat(StatusMap[request.Body][:len(StatusMap[request.Body])-1], 64)
-    if err == nil {
-        return events.APIGatewayProxyResponse{}, ErrCouldNotConvert
-    }
-
     // Log the passed value
-    log.Printf("Passing to CloudWatch %s\n", floatBody)
+    log.Printf("Passing to CloudWatch %s\n", strconv.Itoa(StatusMap[request.Body]))
 
 	// Push metric to cloudwatch
 	result, err := cw.PutMetricData(&cloudwatch.PutMetricDataInput{
@@ -81,7 +72,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 			&cloudwatch.MetricDatum{
 				MetricName: aws.String("ButtonPush"),
 				Unit:       aws.String(cloudwatch.StandardUnitCount),
-				Value:      aws.Float64(floatBody),
+				Value:      aws.Float64(float64(StatusMap[request.Body])),
 			},
 		},
 		Namespace: aws.String("HappyButton"),
@@ -95,7 +86,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
     log.Printf("Success: %s\n", result)
 
 	return events.APIGatewayProxyResponse{
-		Body:       StatusMap[request.Body],
+		Body:       strconv.Itoa(StatusMap[request.Body]),
 		StatusCode: 200,
 	}, nil
 
