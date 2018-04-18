@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"log"
+	"strconv"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -18,8 +19,14 @@ var (
 	// ErrAuthenticationFailed is thrown when a name is not provided
 	ErrAuthenticationFailed = errors.New("recieved an invalid authentication token")
 
-	// ErrBodyNotAccepted is thrown when a name is not provided
+	// ErrBodyNotAccepted is thrown when a body is not provided
 	ErrBodyNotAccepted = errors.New("recieved an invalid authentication token")
+
+	// ErrCouldNotConvert is thrown when we could not convert body to float
+	ErrCouldNotConvert = errors.New("could not convert body to float")
+
+	// ErrCWNoSuccess is thrown when we could not send to CW
+	ErrCWNoSuccess = errors.New("could not pass data to CloudWatch")
 )
 
 // Handler is your Lambda function handler
@@ -57,17 +64,30 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, ErrNameNotProvided
 	}
 
+	// Convert value to float
+    floatBody, err := strconv.ParseFloat(StatusMap[request.Body], 64)
+    if err == nil {
+        return events.APIGatewayProxyResponse{}, ErrCouldNotConvert
+    }
+
 	// Push metric to cloudwatch
 	result, err := cw.PutMetricData(&cloudwatch.PutMetricDataInput{
 		MetricData: []*cloudwatch.MetricDatum{
 			&cloudwatch.MetricDatum{
 				MetricName: aws.String("ButtonPush"),
 				Unit:       aws.String(cloudwatch.StandardUnitCount),
-				Value:      aws.String(StatusMap[request.Body]),
+				Value:      aws.Float64(floatBody),
 			},
 		},
 		Namespace: aws.String("HappyButton"),
 	})
+
+    if err != nil {
+    	log.Printf("Error in CW request %s\n", err)
+        return events.APIGatewayProxyResponse{}, ErrCWNoSuccess
+    }
+
+    log.Printf("Success", result)
 
 	return events.APIGatewayProxyResponse{
 		Body:       StatusMap[request.Body],
