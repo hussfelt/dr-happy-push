@@ -72,6 +72,9 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
         return events.APIGatewayProxyResponse{}, ErrCouldNotConvert
     }
 
+    // Log the passed value
+    log.Printf("Passing to CloudWatch %s\n", floatBody)
+
 	// Push metric to cloudwatch
 	result, err := cw.PutMetricData(&cloudwatch.PutMetricDataInput{
 		MetricData: []*cloudwatch.MetricDatum{
