@@ -35,7 +35,9 @@ var (
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	// Setup new session
-	sess := session.Must(session.NewSession())
+	sess := session.Must(session.NewSession(&aws.Config{
+		Region: aws.String("eu-west-1"),
+	}))
 
 	// Create CloudWatch client
 	cw := cloudwatch.New(sess)
