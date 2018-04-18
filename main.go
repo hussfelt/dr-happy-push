@@ -67,7 +67,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	// Convert value to float
-    floatBody, err := strconv.ParseFloat(StatusMap[request.Body], 64)
+    floatBody, err := strconv.ParseFloat(StatusMap[request.Body][:len(StatusMap[request.Body])-1], 64)
     if err == nil {
         return events.APIGatewayProxyResponse{}, ErrCouldNotConvert
     }
