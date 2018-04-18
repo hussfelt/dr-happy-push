@@ -14,6 +14,9 @@ var (
 
 	// ErrAuthenticationFailed is thrown when a name is not provided
 	ErrAuthenticationFailed = errors.New("recieved an invalid authentication token")
+
+	// ErrBodyNotAccepted is thrown when a name is not provided
+	ErrBodyNotAccepted = errors.New("recieved an invalid authentication token")
 )
 
 // Handler is your Lambda function handler
@@ -29,6 +32,10 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	// stdout and stderr are sent to AWS CloudWatch Logs
 	log.Printf("Processing Lambda request %s\n", request.RequestContext.RequestID)
+
+	if request.Body != "Green" && request.Body != "Yellow" && request.Body != "Red" {
+		return events.APIGatewayProxyResponse{}, ErrBodyNotAccepted
+	}
 
 	// Log headers
 	log.Printf("Passed headers %s\n", request.Headers)
