@@ -61,7 +61,6 @@ func TestHandler(t *testing.T) {
 		response, err := main.Handler(test.request)
 
 		// Log
-		log.Printf("Test: %s\n", test)
 		log.Printf("Error: %s\n", err)
 		log.Printf("Expect: %s\n", test.expect)
 		log.Printf("Response: %s\n", response.Body)
