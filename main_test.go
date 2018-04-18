@@ -30,6 +30,13 @@ func TestHandler(t *testing.T) {
 			expect:  "",
 			err:     main.ErrNameNotProvided,
 		},
+		{
+			// Test that the handler responds ErrAuthenticationFailed
+			// when no auth is posted
+			request: events.APIGatewayProxyRequest{Body: ""},
+			expect:  "",
+			err:     main.ErrAuthenticationFailed,
+		},
 	}
 
 	for _, test := range tests {
