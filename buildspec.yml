@@ -40,7 +40,7 @@ phases:
       - go vet .
 
       # Run all tests included with our application
-      - go test .
+      - LOCATION=TEST go test .
 
   build:
     commands:
