@@ -3,8 +3,8 @@
 const char* ssid     = "";
 const char* password = "";
 const char* host = "";
-const char* url = "/Prod/";
-const char* auth = ""
+const String url = "/Prod/";
+const char* auth = "";
 // Declare the pins for the Buttons and the LED
 int greenButtonPin = D3;
 int redButtonPin = D7;
@@ -46,12 +46,24 @@ void loop(){
   int redButton = digitalRead(redButtonPin);
   int yellowButton = digitalRead(yellowButtonPin);
   String currentButton;
+  
   // Check if we're connected to wifi
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Disconnected from wifi. Reconnecting");
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
+
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(10000);
+      Serial.println("Trying to reconnect to wifi");
+    }
+
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
     // Check which button is pressed
+  } else {
     if (greenButton == LOW) {
       currentButton = "Green";
     } else if (yellowButton == LOW) {
@@ -66,9 +78,6 @@ void loop(){
        return;
     }
     button(currentButton);
-  } else {
-    Serial.println("Could not connect to wifi. We try to connect to ssid:" + ssid + "in 10 seconds.")
-    delay(10000);
   }
 }
 void button(String newCurrentButton) {
@@ -90,7 +99,7 @@ void button(String newCurrentButton) {
       client.println("POST " + url + " HTTP/1.1");
       client.print("Host: "); client.println(host);
       client.println("User-Agent: arduino/1.0");
-      client.println("Auth: "); client.println(auth);
+      client.print("Auth: "); client.println(auth);
       client.println("Content-Type: application/x-www-form-urlencoded");
       client.print("Content-Length: "); client.println(newCurrentButton.length());
       client.println("");
@@ -124,6 +133,7 @@ void button(String newCurrentButton) {
   
         }
         if (gotResponse) {
+          Serial.println("body:");
           Serial.println(body);
           break;
         }
