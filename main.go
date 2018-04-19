@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"strconv"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -30,6 +31,9 @@ var (
 // It uses Amazon API Gateway request/responses provided by the aws-lambda-go/events package,
 // However you could use other event sources (S3, Kinesis etc), or JSON-decoded primitive types such as 'string'.
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+
+	// What is the current location of the box
+	currentLocation := os.Getenv("LOCATION")
 
 	// Setup new session
 	sess := session.Must(session.NewSession(&aws.Config{
@@ -73,6 +77,12 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 				MetricName: aws.String("ButtonPush"),
 				Unit:       aws.String(cloudwatch.StandardUnitCount),
 				Value:      aws.Float64(float64(StatusMap[request.Body])),
+                Dimensions: []*cloudwatch.Dimension{
+                    &cloudwatch.Dimension{
+                        Name:  aws.String("Location"),
+                        Value: aws.String(currentLocation),
+                    },
+                },
 			},
 		},
 		Namespace: aws.String("HappyButton"),

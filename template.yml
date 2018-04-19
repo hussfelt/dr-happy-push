@@ -5,6 +5,9 @@ Resources:
   HelloFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Environment:
+          Variables:
+              LOCATION: FedEx2018
       Policies: CloudWatchAgentServerPolicy
       Handler: main
       Runtime: go1.x
