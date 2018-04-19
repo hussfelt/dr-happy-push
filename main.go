@@ -72,8 +72,8 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, ErrNameNotProvided
 	}
 
-    // Log the passed value
-    log.Printf("Passing to CloudWatch %s\n", strconv.Itoa(StatusMap[request.Body]))
+	// Log the passed value
+	log.Printf("Passing to CloudWatch %s\n", strconv.Itoa(StatusMap[request.Body]))
 
 	// Push metric to cloudwatch
 	result, err := cw.PutMetricData(&cloudwatch.PutMetricDataInput{
@@ -82,23 +82,23 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 				MetricName: aws.String("ButtonPush"),
 				Unit:       aws.String(cloudwatch.StandardUnitCount),
 				Value:      aws.Float64(float64(StatusMap[request.Body])),
-                Dimensions: []*cloudwatch.Dimension{
-                    &cloudwatch.Dimension{
-                        Name:  aws.String("Location"),
-                        Value: aws.String(currentLocation),
-                    },
-                },
+				Dimensions: []*cloudwatch.Dimension{
+					&cloudwatch.Dimension{
+						Name:  aws.String("Location"),
+						Value: aws.String(currentLocation),
+					},
+				},
 			},
 		},
 		Namespace: aws.String("HappyButton"),
 	})
 
-    if err != nil {
-    	log.Printf("Error in CW request %s\n", err)
-        return events.APIGatewayProxyResponse{}, ErrCWNoSuccess
-    }
+	if err != nil {
+		log.Printf("Error in CW request %s\n", err)
+		return events.APIGatewayProxyResponse{}, ErrCWNoSuccess
+	}
 
-    log.Printf("Success: %s\n", result)
+	log.Printf("Success: %s\n", result)
 
 	return events.APIGatewayProxyResponse{
 		Body:       strconv.Itoa(StatusMap[request.Body]),
