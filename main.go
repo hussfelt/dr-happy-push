@@ -66,14 +66,23 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	// Trigger with ButtonPush
 	var CWButtonPush bool
-	CWButtonPush = sendToCloudWatch("ButtonPush", float64(StatusMap[request.Body]), currentLocation)
+	CWButtonPush = sendToCloudWatch("ButtonPush", float64(1), currentLocation)
 
 	// Break if error
 	if ! CWButtonPush {
 		return events.APIGatewayProxyResponse{}, ErrCWNoSuccess
 	}
 
-	// Trigger with ButtonPush
+	// Trigger with ButtonPushAvg
+	var CWButtonPushAvg bool
+	CWButtonPushAvg = sendToCloudWatch("ButtonPushAvg", float64(StatusMap[request.Body]), currentLocation)
+
+	// Break if error
+	if ! CWButtonPushAvg {
+		return events.APIGatewayProxyResponse{}, ErrCWNoSuccess
+	}
+
+	// Trigger with ButtonPushColor
 	var CWButtonPushValue bool
 	CWButtonPushValue = sendToCloudWatch("ButtonPush" + request.Body, float64(1), currentLocation)
 
