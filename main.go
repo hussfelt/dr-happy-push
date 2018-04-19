@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 	"strconv"
-	"os"
+	//"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -33,7 +33,7 @@ var (
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	// What is the current location of the box
-	currentLocation := os.Getenv("LOCATION")
+	//currentLocation := os.Getenv("LOCATION")
 
 	// Setup new session
 	sess := session.Must(session.NewSession(&aws.Config{
@@ -80,7 +80,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
                 Dimensions: []*cloudwatch.Dimension{
                     &cloudwatch.Dimension{
                         Name:  aws.String("Location"),
-                        Value: aws.String(currentLocation),
+                        Value: aws.String("FedEx2018"),
                     },
                 },
 			},
