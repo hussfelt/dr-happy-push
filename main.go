@@ -40,14 +40,6 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		currentLocation = "Office"
 	}
 
-	// Setup new session
-	sess := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String("eu-west-1"),
-	}))
-
-	// Create CloudWatch client
-	cw := cloudwatch.New(sess)
-
 	// Define map of statuses
 	StatusMap := make(map[string]int)
 	StatusMap["Green"] = 3
@@ -72,39 +64,79 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, ErrNameNotProvided
 	}
 
-    // Log the passed value
-    log.Printf("Passing to CloudWatch %s\n", strconv.Itoa(StatusMap[request.Body]))
+	// Trigger with ButtonPush
+	var CWButtonPush bool
+	CWButtonPush = sendToCloudWatch("ButtonPush", float64(1), currentLocation)
 
-	// Push metric to cloudwatch
-	result, err := cw.PutMetricData(&cloudwatch.PutMetricDataInput{
-		MetricData: []*cloudwatch.MetricDatum{
-			&cloudwatch.MetricDatum{
-				MetricName: aws.String("ButtonPush"),
-				Unit:       aws.String(cloudwatch.StandardUnitCount),
-				Value:      aws.Float64(float64(StatusMap[request.Body])),
-                Dimensions: []*cloudwatch.Dimension{
-                    &cloudwatch.Dimension{
-                        Name:  aws.String("Location"),
-                        Value: aws.String(currentLocation),
-                    },
-                },
-			},
-		},
-		Namespace: aws.String("HappyButton"),
-	})
+	// Break if error
+	if ! CWButtonPush {
+		return events.APIGatewayProxyResponse{}, ErrCWNoSuccess
+	}
 
-    if err != nil {
-    	log.Printf("Error in CW request %s\n", err)
-        return events.APIGatewayProxyResponse{}, ErrCWNoSuccess
-    }
+	// Trigger with ButtonPushAvg
+	var CWButtonPushAvg bool
+	CWButtonPushAvg = sendToCloudWatch("ButtonPushAvg", float64(StatusMap[request.Body]), currentLocation)
 
-    log.Printf("Success: %s\n", result)
+	// Break if error
+	if ! CWButtonPushAvg {
+		return events.APIGatewayProxyResponse{}, ErrCWNoSuccess
+	}
+
+	// Trigger with ButtonPushColor
+	var CWButtonPushValue bool
+	CWButtonPushValue = sendToCloudWatch("ButtonPush" + request.Body, float64(1), currentLocation)
+
+	// Break if error
+	if ! CWButtonPushValue {
+		return events.APIGatewayProxyResponse{}, ErrCWNoSuccess
+	}
+
+	// Log the passed value
+	log.Printf("Passing to CloudWatch %s\n", strconv.Itoa(StatusMap[request.Body]))
 
 	return events.APIGatewayProxyResponse{
 		Body:       strconv.Itoa(StatusMap[request.Body]),
 		StatusCode: 200,
 	}, nil
 
+}
+
+func sendToCloudWatch(metricName string, metricValue float64, currentLocation string) (bool) {
+
+	// Setup new session
+	sess := session.Must(session.NewSession(&aws.Config{
+		Region: aws.String("eu-west-1"),
+	}))
+
+	// Create CloudWatch client
+	cw := cloudwatch.New(sess)
+
+	// Push metric to cloudwatch
+	result, err := cw.PutMetricData(&cloudwatch.PutMetricDataInput{
+		MetricData: []*cloudwatch.MetricDatum{
+			&cloudwatch.MetricDatum{
+				MetricName: aws.String(metricName),
+				Unit:       aws.String(cloudwatch.StandardUnitCount),
+				Value:      aws.Float64(metricValue),
+				Dimensions: []*cloudwatch.Dimension{
+					&cloudwatch.Dimension{
+						Name:  aws.String("Location"),
+						Value: aws.String(currentLocation),
+					},
+				},
+			},
+		},
+		Namespace: aws.String("HappyButton"),
+	})
+
+	if err != nil {
+		log.Printf("Error in CW request %s\n", err)
+		return false
+	}
+
+	log.Printf("Success: %s\n", result)
+
+	return true
 }
 
 func main() {
